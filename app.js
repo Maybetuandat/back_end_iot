@@ -1,49 +1,76 @@
 const express = require("express");
 const { connection } = require("./config/connectDb");
 const { connectMqtt, client } = require("./config/connectMqtt");
-const { Json } = require("sequelize/lib/utils");
 const app = express();
 const port = 9999;
 connection();
 connectMqtt();
+const statusLight = "home/light";
+const statusFan = "home/fan";
+const statusAirConditioner = "home/air_conditioner";
 
-// const char* statusLight = "home/light";
-// const char*  statusFan =  "home/fan";
-// const char* statusAirConditioner =  "home/air_conditioner";  đẩy từ server về hivemq -> gửi về esp32
+const http = require("http");
 
-let sensorData = null;
+const { Server } = require("socket.io");
+const server = http.createServer(app);
 
-// Lắng nghe tin nhắn từ MQTT
-client.on("message", (topic, message) => {
-  if (topic === "home/sensor") {
-    sensorData = message.toString();
-    console.log(`Dữ liệu nhận được từ topic ${topic}: ${sensorData}`);
-  }
+const io = new Server(server);
+
+io.on("connection", (socket) => {
+  console.log("A user connected");
+
+  socket.on("chat message", (msg) => {
+    io.emit("chat message", msg);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("A user disconnected");
+  });
 });
-app.get("/api/get_data_sensor", (req, res) => {
-  if (sensorData) {
-    res.json({
-      status: "success",
-      data: sensorData,
-    });
+server.listen(3000, () => {
+  console.log("Server is running on port 3000");
+});
+
+// // phải code lại tại cần sử dụng socket io để gửi dữ liệu từ server về client
+// let sensorData = null;
+// client.on("message", (topic, message) => {
+//   if (topic === "home/sensor") {
+//     sensorData = message.toString();
+//     console.log(`Dữ liệu nhận được từ topic ${topic}: ${sensorData}`);
+//   }
+// });
+// app.get("/api/get_data_sensor", (req, res) => {
+//   if (sensorData) {
+//     res.json({
+//       status: "success",
+//       data: sensorData,
+//     });
+//   } else {
+//     res.json({
+//       status: "error",
+//       message: "Chưa có dữ liệu sensor",
+//     });
+//   }
+// });
+
+//
+app.post("/api/send_status", (req, res) => {
+  const { status, topic, message } = req.body;
+  if (status) {
+    client.publish(topic, message);
+    // res.json({
+    //   status: "success",
+    //   message: "Gửi dữ liệu thành công",
+    // });
+    console.log(`Gửi dữ liệu thành công tới topic ${topic}: ${message}`);
   } else {
-    res.json({
-      status: "error",
-      message: "Chưa có dữ liệu sensor",
-    });
+    // res.json({
+    //   status: "error",
+    //   message: "Chưa có dữ liệu sensor",
+    // });
+    return;
   }
 });
-
-app.get("/api/pub_device_status", (req, res) => {
-  const topiclight = "home/light";
-
-  const topicfan = "home/fan";
-  const topicAirConditioner = "home/air_conditioner";
-
-  const message = JSON.stringify({});
-});
-//sử dụng để nhận các topic từ server gửi về
-
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
