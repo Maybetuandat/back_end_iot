@@ -10,7 +10,8 @@ const statusLedResponse = "home/led/response";
 const statusFanResponse = "home/fan/response";
 const statusAirConditionerResponse = "home/air_conditioner/response";
 const homestatus = "home/sensor/data";
-const { saveDataSensor, saveHistoryDevice } = require("../service/service");
+const { saveDataSensor } = require("../service/data_sensor.service");
+const { saveHistoryDevice } = require("../service/history_device.service");
 const connectMqtt = (io) => {
   //need connect to mqtt broker
   client.on("connect", () => {
