@@ -5,8 +5,13 @@ const client = mqtt.connect(process.env.MQTT_BROKER, {
   password: process.env.MQTT_PASSWORD,
   port: process.env.MQTT_PORT,
 });
-const topic = "home/sensor";
-const connectMqtt = () => {
+const topic = "home/sensor/data";
+const statusLedResponse = "home/led/response";
+const statusFanResponse = "home/fan/response";
+const statusAirConditionerResponse = "home/air_conditioner/response";
+const homestatus = "home/sensor/data";
+const { saveDataSensor, saveHistoryDevice } = require("../service/service");
+const connectMqtt = (io) => {
   //need connect to mqtt broker
   client.on("connect", () => {
     console.log("Connected to MQTT broker");
@@ -18,6 +23,30 @@ const connectMqtt = () => {
       }
     });
 
+    client.subscribe(statusLedResponse, (err) => {
+      if (err) {
+        console.error("Failed to subscribe to topic:", err);
+      } else {
+        console.log("Subscribed to topic:", statusLedResponse);
+      }
+    });
+
+    client.subscribe(statusFanResponse, (err) => {
+      if (err) {
+        console.error("Failed to subscribe to topic:", err);
+      } else {
+        console.log("Subscribed to topic:", statusFanResponse);
+      }
+    });
+
+    client.subscribe(statusAirConditionerResponse, (err) => {
+      if (err) {
+        console.error("Failed to subscribe to topic:", err);
+      } else {
+        console.log("Subscribed to topic:", statusAirConditionerResponse);
+      }
+    });
+
     //tạo các subcribe cho các topic
   });
 
@@ -26,6 +55,43 @@ const connectMqtt = () => {
   // Handle connection errors
   client.on("error", (err) => {
     console.error("MQTT connection error:", err);
+  });
+
+  client.on("message", async (topic, message) => {
+    if (topic === homestatus) {
+      const sensorData = JSON.parse(message.toString());
+      let temp = sensorData.temperature.toFixed(2);
+      let humidity = sensorData.humidity;
+      let light_level = sensorData.light_level;
+      console.log(`Data nhận được từ sensor: ${message}`);
+      io.emit("data_sensor", `${temp} ${humidity} ${light_level}`);
+      const statussaveDataSensor = await saveDataSensor(sensorData);
+      console.log(statussaveDataSensor);
+    }
+    if (topic === statusLedResponse) {
+      const data = message.toString();
+      console.log(`led status: ${data}`);
+      const statussaveHistoryDevice = await saveHistoryDevice("Led", data);
+      console.log(statussaveHistoryDevice);
+      io.emit("led_status", data);
+    }
+    if (topic === statusFanResponse) {
+      const data = message.toString();
+      console.log(`fan status: ${data}`);
+      const statussaveHistoryDevice = await saveHistoryDevice("Fan", data);
+      console.log(statussaveHistoryDevice);
+      io.emit("fan_status", data);
+    }
+    if (topic === statusAirConditionerResponse) {
+      const data = message.toString();
+      console.log(`air_conditioner status: ${data}`);
+      const statussaveHistoryDevice = await saveHistoryDevice(
+        "Air Conditioner",
+        data
+      );
+      console.log(statussaveHistoryDevice);
+      io.emit("air_conditioner_status", data);
+    }
   });
 };
 module.exports = { connectMqtt, client };

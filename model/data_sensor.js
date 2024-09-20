@@ -1,27 +1,36 @@
-const { DataTypes } = require("sequelize");
-const sequelize = require("../db"); // Đảm bảo đường dẫn đúng với cấu hình Sequelize của bạn
-
-// Định nghĩa model SensorData
-const SensorData = sequelize.define(
-  "SensorData",
-  {
-    temperature: {
-      type: DataTypes.FLOAT,
-      allowNull: false,
-    },
-    humidity: {
-      type: DataTypes.FLOAT,
-      allowNull: false,
-    },
-    timestamp: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
-  },
-  {
-    tableName: "data_sensor", // Tên bảng trong MySQL
-    timestamps: false, // Nếu không muốn Sequelize tự thêm cột createdAt/updatedAt
+const { Model } = require("sequelize");
+module.exports = (sequelize, DataTypes) => {
+  class DataSensor extends Model {
+    static associate(model) {}
   }
-);
-
-module.exports = SensorData;
+  DataSensor.init(
+    {
+      Id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      Temperature: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+      },
+      Humidity: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+      },
+      Light: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+      },
+      Time: DataTypes.DATE,
+    },
+    {
+      sequelize,
+      modelName: "DataSensor",
+      tableName: "data_sensor",
+      timestamps: false,
+    }
+  );
+  DataSensor.removeAttribute("id");
+  return DataSensor;
+};
