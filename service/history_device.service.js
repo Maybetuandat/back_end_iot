@@ -1,4 +1,5 @@
 const db = require("../model/index");
+const { Sequelize } = require("sequelize");
 const { Op } = require("sequelize");
 const saveHistoryDevice = async (name, status) => {
   var response = { status: null };
@@ -83,7 +84,60 @@ const getHistoryDeviceByTime = async (
   return data;
 };
 
-const getHistoryDeviceByStatus = async () => {};
+const getHistoryDeviceByStatus = async (
+  value,
+  typeSort,
+  sort,
+  page,
+  pageSize
+) => {
+  var data = {};
+  var find = {};
+  if (value) {
+    find = {
+      Status: {
+        [Op.like]: `%${value}%`,
+      },
+    };
+  }
+
+  try {
+    // Truy vấn dữ liệu từ database
+    let objectSearchByTime = await db.HistoryDevice.findAll({
+      where: find,
+      limit: pageSize,
+      offset: (page - 1) * pageSize,
+      raw: true,
+    });
+
+    if (objectSearchByTime.length > 0) {
+      // Sắp xếp theo thời gian
+      if (typeSort === "Time") {
+        if (sort === "Increase") {
+          objectSearchByTime.sort((a, b) => {
+            return new Date(a.Time) - new Date(b.Time);
+          });
+        } else if (sort === "Decrease") {
+          objectSearchByTime.sort((a, b) => {
+            return new Date(b.Time) - new Date(a.Time);
+          });
+        }
+      }
+
+      data.status = 200;
+      data.data = objectSearchByTime;
+    } else {
+      data.status = 404;
+      data.message = "No data found";
+    }
+  } catch (error) {
+    console.log("Error fetching data", error);
+    data.status = 500;
+    data.message = "Internal server error";
+  }
+
+  return data;
+};
 const getHistoryDeviceByDevice = async (
   value,
   typeSort,
@@ -91,9 +145,52 @@ const getHistoryDeviceByDevice = async (
   page,
   pageSize
 ) => {
-  const find = {};
+  var data = {};
+  var find = {};
   if (value) {
+    find = {
+      Device: {
+        [Op.like]: `%${value}%`,
+      },
+    };
   }
+
+  try {
+    // Truy vấn dữ liệu từ database
+    let objectSearchByTime = await db.HistoryDevice.findAll({
+      where: find,
+      limit: pageSize,
+      offset: (page - 1) * pageSize,
+      raw: true,
+    });
+
+    if (objectSearchByTime.length > 0) {
+      // Sắp xếp theo thời gian
+      if (typeSort === "Time") {
+        if (sort === "Increase") {
+          objectSearchByTime.sort((a, b) => {
+            return new Date(a.Time) - new Date(b.Time);
+          });
+        } else if (sort === "Decrease") {
+          objectSearchByTime.sort((a, b) => {
+            return new Date(b.Time) - new Date(a.Time);
+          });
+        }
+      }
+
+      data.status = 200;
+      data.data = objectSearchByTime;
+    } else {
+      data.status = 404;
+      data.message = "No data found";
+    }
+  } catch (error) {
+    console.log("Error fetching data", error);
+    data.status = 500;
+    data.message = "Internal server error";
+  }
+
+  return data;
 };
 
 const getAllHistoryDevice = async (typeSort, sort, page, pageSize) => {

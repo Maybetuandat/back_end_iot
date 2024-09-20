@@ -20,3 +20,4 @@ const saveDataSensor = async (data) => {
   }
   return response;
 };
+module.exports = { saveDataSensor };
