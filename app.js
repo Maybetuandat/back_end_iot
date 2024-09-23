@@ -17,7 +17,7 @@ io.on("connection", (socket) => {
     console.log("A user disconnected");
   });
 });
-//connectMqtt(io);
+connectMqtt(io);
 apiRouter(app);
 server.listen(process.env.SERVER_PORT, process.env.SERVER_HOST, () => {
   console.log(

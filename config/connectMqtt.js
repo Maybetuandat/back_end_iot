@@ -62,6 +62,7 @@ const connectMqtt = (io) => {
     if (topic === homestatus) {
       const sensorData = JSON.parse(message.toString());
       let temp = sensorData.temperature.toFixed(2);
+      sensorData.temperature = temp;
       let humidity = sensorData.humidity;
       let light_level = sensorData.light_level;
       console.log(`Data nhận được từ sensor: ${message}`);
