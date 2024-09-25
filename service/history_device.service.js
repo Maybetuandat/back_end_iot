@@ -315,6 +315,33 @@ const getCountAllHistoryDevice = async () => {
   return data;
 };
 
+const getFanService = async () => {
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+  startOfDay.setHours(startOfDay.getHours() + 7);
+
+  const endOfDay = new Date();
+  endOfDay.setHours(23, 59, 59, 999);
+  endOfDay.setHours(endOfDay.getHours() + 7);
+  const data = { status: null, data: null };
+  try {
+    const count = await db.HistoryDevice.count({
+      where: {
+        Device: "Fan",
+        Status: "ON",
+        Time: {
+          [Op.between]: [startOfDay, endOfDay],
+        },
+      },
+    });
+    data.status = 200;
+    data.data = count;
+  } catch (error) {
+    data.status = 500;
+  }
+  return data;
+};
+
 module.exports = {
   getHistoryDeviceByStatus,
   getHistoryDeviceByDevice,
@@ -325,4 +352,5 @@ module.exports = {
   getCountHistoryDeviceByTime,
   getCountHistoryDeviceByDevice,
   getCountHistoryDeviceByStatus,
+  getFanService,
 };

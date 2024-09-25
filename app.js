@@ -2,6 +2,9 @@ const express = require("express");
 const { connection } = require("./config/connectDb");
 const { connectMqtt } = require("./config/connectMqtt");
 const apiRouter = require("./router/index.router");
+const swaggerUI = require("swagger-ui-express");
+const swaggerSpec = require("./swagger");
+
 const app = express();
 connection();
 const http = require("http");
@@ -17,8 +20,10 @@ io.on("connection", (socket) => {
     console.log("A user disconnected");
   });
 });
-//connectMqtt(io);
+connectMqtt(io);
 apiRouter(app);
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
+
 server.listen(process.env.SERVER_PORT, process.env.SERVER_HOST, () => {
   console.log(
     `Socket server is running on port 9999 ${process.env.SERVER_HOST}`

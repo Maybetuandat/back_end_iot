@@ -2,6 +2,7 @@ const statusLedRequest = "home/led/request";
 const statusFanRequest = "home/fan/request";
 const { client } = require("../config/connectMqtt");
 const statusAirConditionerRequest = "home/air_conditioner/request";
+const statusDustRequest = "home/dust/request";
 const pagination = require("../helper/pagination");
 const {
   getHistoryDeviceByTime,
@@ -12,6 +13,7 @@ const {
   getCountHistoryDeviceByTime,
   getCountHistoryDeviceByDevice,
   getCountHistoryDeviceByStatus,
+  getFanService,
 } = require("../service/history_device.service");
 const {
   getCountAllHistoryDataSensor,
@@ -25,6 +27,9 @@ const {
   getCountHistoryDataSensorByTemperature,
   getHistoryDataSensorByTemperature,
   getDataSensorForChart,
+  getWindService,
+  getHistoryDataSensorByWind,
+  getCountHistoryDataSensorByWind,
 } = require("../service/data_sensor.service");
 const controlDevice = async (req, res) => {
   const parameter = req.query.parameter;
@@ -63,6 +68,18 @@ const controlDevice = async (req, res) => {
       data.data = "Air Conditioner  is off";
     }
   }
+  if (id == "4") {
+    if (parameter == "1") {
+      client.publish(statusDustRequest, "1");
+      data.status = 200;
+      data.data = "Dust is on";
+    } else {
+      client.publish(statusDustRequest, "0");
+      data.status = 200;
+      data.data = "Dust is off";
+    }
+  }
+
   //  console.log(parameter);
 
   res.status(data.status).json(data);
@@ -74,44 +91,46 @@ const getHistoryDevice = async (req, res) => {
   //sort
   // page
   //pageSize
+  const value = (req.query.value || "").replace(/\s+/g, "");
+  const typeSearch = (req.query.typeSearch || "").replace(/\s+/g, "");
+  const typeSort = (req.query.typeSort || "").replace(/\s+/g, "");
+  const sort = (req.query.sort || "").replace(/\s+/g, "");
+  const page = (req.query.page || "").replace(/\s+/g, "");
+  const pageSize = (req.query.pageSize || "").replace(/\s+/g, "");
+
   const query = req.query;
   console.log(query);
   const objectPagination = {};
   const data = { status: null, data: null, meta: null };
-  if (req.query.typeSearch == "Time") {
+  if (typeSearch == "Time") {
     // giá trị tìm kiếm không có gì thì get cả
 
     //lay
 
-    if (req.query.value == "") {
+    if (value == "" || value == null) {
       const total_data = (await getCountAllHistoryDevice()).data;
       const meta = pagination(
         objectPagination,
-        parseInt(req.query.page),
-        parseInt(req.query.pageSize),
+        parseInt(page),
+        parseInt(pageSize),
         total_data
       );
-      const dataResponse = await getAllHistoryDevice(
-        req.query.typeSort,
-        req.query.sort,
-        meta
-      );
+      const dataResponse = await getAllHistoryDevice(typeSort, sort, meta);
       data.status = dataResponse.status;
       data.data = dataResponse.data;
       data.meta = meta;
     } else {
-      const total_data = (await getCountHistoryDeviceByTime(req.query.value))
-        .data;
+      const total_data = (await getCountHistoryDeviceByTime(value)).data;
       const meta = pagination(
         objectPagination,
-        parseInt(req.query.page),
-        parseInt(req.query.pageSize),
+        parseInt(page),
+        parseInt(pageSize),
         total_data
       );
       const dataResponse = await getHistoryDeviceByTime(
-        req.query.value,
-        req.query.typeSort,
-        req.query.sort,
+        value,
+        typeSort,
+        sort,
         meta
       );
       data.status = dataResponse.status;
@@ -119,38 +138,33 @@ const getHistoryDevice = async (req, res) => {
       data.meta = meta;
     }
   }
-  if (req.query.typeSearch == "Device") {
-    if (req.query.value == "") {
+  if (typeSearch == "Device") {
+    if (value == "" || value == null) {
       const total_data = (await getCountAllHistoryDevice()).data;
       const meta = pagination(
         objectPagination,
-        parseInt(req.query.page),
-        parseInt(req.query.pageSize),
+        parseInt(page),
+        parseInt(pageSize),
         total_data
       );
 
-      const dataResponse = await getAllHistoryDevice(
-        req.query.typeSort,
-        req.query.sort,
-        meta
-      );
+      const dataResponse = await getAllHistoryDevice(typeSort, sort, meta);
       data.status = dataResponse.status;
       data.data = dataResponse.data;
       data.meta = meta;
     } else {
-      const total_data = (await getCountHistoryDeviceByDevice(req.query.value))
-        .data;
+      const total_data = (await getCountHistoryDeviceByDevice(value)).data;
       const meta = pagination(
         objectPagination,
-        parseInt(req.query.page),
-        parseInt(req.query.pageSize),
+        parseInt(page),
+        parseInt(pageSize),
         total_data
       );
 
       const dataResponse = await getHistoryDeviceByDevice(
-        req.query.value,
-        req.query.typeSort,
-        req.query.sort,
+        value,
+        typeSort,
+        sort,
         meta
       );
       data.status = dataResponse.status;
@@ -158,36 +172,31 @@ const getHistoryDevice = async (req, res) => {
       data.meta = meta;
     }
   }
-  if (req.query.typeSearch == "Status") {
-    if (req.query.value == "") {
+  if (typeSearch == "Status") {
+    if (value == "" || value == null) {
       const total_data = (await getCountAllHistoryDevice()).data;
       const meta = pagination(
         objectPagination,
-        parseInt(req.query.page),
-        parseInt(req.query.pageSize),
+        parseInt(page),
+        parseInt(pageSize),
         total_data
       );
-      const dataResponse = await getAllHistoryDevice(
-        req.query.typeSort,
-        req.query.sort,
-        meta
-      );
+      const dataResponse = await getAllHistoryDevice(typeSort, sort, meta);
       data.status = dataResponse.status;
       data.data = dataResponse.data;
       data.meta = meta;
     } else {
-      const total_data = (await getCountHistoryDeviceByStatus(req.query.value))
-        .data;
+      const total_data = (await getCountHistoryDeviceByStatus(value)).data;
       const meta = pagination(
         objectPagination,
-        parseInt(req.query.page),
-        parseInt(req.query.pageSize),
+        parseInt(page),
+        parseInt(pageSize),
         total_data
       );
       const dataResponse = await getHistoryDeviceByStatus(
-        req.query.value,
-        req.query.typeSort,
-        req.query.sort,
+        value,
+        typeSort,
+        sort,
         meta
       );
       data.status = dataResponse.status;
@@ -206,41 +215,42 @@ const getHistoryDataSensor = async (req, res) => {
   //sort
   // page
   //pageSize
+  const value = (req.query.value || "").replace(/\s+/g, "");
+  const typeSearch = (req.query.typeSearch || "").replace(/\s+/g, "");
+  const typeSort = (req.query.typeSort || "").replace(/\s+/g, "");
+  const sort = (req.query.sort || "").replace(/\s+/g, "");
+  const page = (req.query.page || "").replace(/\s+/g, "");
+  const pageSize = (req.query.pageSize || "").replace(/\s+/g, "");
+
   const query = req.query;
   console.log(query);
   const objectPagination = {};
   const data = { status: null, data: null, meta: null };
-  if (req.query.typeSearch == "Time") {
-    if (req.query.value == "") {
+  if (typeSearch == "Time") {
+    if (value == "" || value == null) {
       const total_data = (await getCountAllHistoryDataSensor()).data;
       const meta = pagination(
         objectPagination,
-        parseInt(req.query.page),
-        parseInt(req.query.pageSize),
+        parseInt(page),
+        parseInt(pageSize),
         total_data
       );
-      const dataResponse = await getAllHistoryDataSensor(
-        req.query.typeSort,
-        req.query.sort,
-        meta
-      );
+      const dataResponse = await getAllHistoryDataSensor(typeSort, sort, meta);
       data.status = dataResponse.status;
       data.data = dataResponse.data;
       data.meta = meta;
     } else {
-      const total_data = (
-        await getCountHistoryDataSensorByTime(req.query.value)
-      ).data;
+      const total_data = (await getCountHistoryDataSensorByTime(value)).data;
       const meta = pagination(
         objectPagination,
-        parseInt(req.query.page),
-        parseInt(req.query.pageSize),
+        parseInt(page),
+        parseInt(pageSize),
         total_data
       );
       const dataResponse = await getHistoryDataSensorByTime(
-        req.query.value,
-        req.query.typeSort,
-        req.query.sort,
+        value,
+        typeSort,
+        sort,
         meta
       );
       data.status = dataResponse.status;
@@ -248,39 +258,33 @@ const getHistoryDataSensor = async (req, res) => {
       data.meta = meta;
     }
   }
-  if (req.query.typeSearch == "Light") {
-    if (req.query.value == "") {
+  if (typeSearch == "Light") {
+    if (value == "" || value == null) {
       const total_data = (await getCountAllHistoryDataSensor()).data;
       const meta = pagination(
         objectPagination,
-        parseInt(req.query.page),
-        parseInt(req.query.pageSize),
+        parseInt(page),
+        parseInt(pageSize),
         total_data
       );
 
-      const dataResponse = await getAllHistoryDataSensor(
-        req.query.typeSort,
-        req.query.sort,
-        meta
-      );
+      const dataResponse = await getAllHistoryDataSensor(typeSort, sort, meta);
       data.status = dataResponse.status;
       data.data = dataResponse.data;
       data.meta = meta;
     } else {
-      const total_data = (
-        await getCountHistoryDataSensorByLight(req.query.value)
-      ).data;
+      const total_data = (await getCountHistoryDataSensorByLight(value)).data;
       const meta = pagination(
         objectPagination,
-        parseInt(req.query.page),
-        parseInt(req.query.pageSize),
+        parseInt(page),
+        parseInt(pageSize),
         total_data
       );
 
       const dataResponse = await getHistoryDataSensorByLight(
-        req.query.value,
-        req.query.typeSort,
-        req.query.sort,
+        value,
+        typeSort,
+        sort,
         meta
       );
       data.status = dataResponse.status;
@@ -288,37 +292,32 @@ const getHistoryDataSensor = async (req, res) => {
       data.meta = meta;
     }
   }
-  if (req.query.typeSearch == "Humidity") {
-    if (req.query.value == "") {
+  if (typeSearch == "Humidity") {
+    if (value == "" || value == null) {
       const total_data = (await getCountAllHistoryDataSensor()).data;
       const meta = pagination(
         objectPagination,
-        parseInt(req.query.page),
-        parseInt(req.query.pageSize),
+        parseInt(page),
+        parseInt(pageSize),
         total_data
       );
-      const dataResponse = await getAllHistoryDataSensor(
-        req.query.typeSort,
-        req.query.sort,
-        meta
-      );
+      const dataResponse = await getAllHistoryDataSensor(typeSort, sort, meta);
       data.status = dataResponse.status;
       data.data = dataResponse.data;
       data.meta = meta;
     } else {
-      const total_data = (
-        await getCountHistoryDataSensorByHumidity(req.query.value)
-      ).data;
+      const total_data = (await getCountHistoryDataSensorByHumidity(value))
+        .data;
       const meta = pagination(
         objectPagination,
-        parseInt(req.query.page),
-        parseInt(req.query.pageSize),
+        parseInt(page),
+        parseInt(pageSize),
         total_data
       );
       const dataResponse = await getHistoryDataSensorByHumidity(
-        req.query.value,
-        req.query.typeSort,
-        req.query.sort,
+        value,
+        typeSort,
+        sort,
         meta
       );
       data.status = dataResponse.status;
@@ -326,38 +325,66 @@ const getHistoryDataSensor = async (req, res) => {
       data.meta = meta;
     }
   }
-  if (req.query.typeSearch == "Temperature") {
-    if (req.query.value == "") {
+  if (typeSearch == "Temperature") {
+    if (value == "" || value == null) {
       const total_data = (await getCountAllHistoryDataSensor()).data;
       const meta = pagination(
         objectPagination,
-        parseInt(req.query.page),
-        parseInt(req.query.pageSize),
+        parseInt(page),
+        parseInt(pageSize),
         total_data
       );
-      const dataResponse = await getAllHistoryDataSensor(
-        req.query.typeSort,
-        req.query.sort,
+      const dataResponse = await getAllHistoryDataSensor(typeSort, sort, meta);
+      data.status = dataResponse.status;
+      data.data = dataResponse.data;
+      data.meta = meta;
+    } else {
+      const total_data = (await getCountHistoryDataSensorByTemperature(value))
+        .data;
+      //console.log("total_data is ", total_data);
+      const meta = pagination(
+        objectPagination,
+        parseInt(page),
+        parseInt(pageSize),
+        total_data
+      );
+      const dataResponse = await getHistoryDataSensorByTemperature(
+        value,
+        typeSort,
+        sort,
         meta
       );
       data.status = dataResponse.status;
       data.data = dataResponse.data;
       data.meta = meta;
-    } else {
-      const total_data = (
-        await getCountHistoryDataSensorByTemperature(req.query.value)
-      ).data;
-      console.log("total_data is ", total_data);
+    }
+  }
+  if (typeSearch == "Wind") {
+    if (value == "" || value == null) {
+      const total_data = (await getCountAllHistoryDataSensor()).data;
       const meta = pagination(
         objectPagination,
-        parseInt(req.query.page),
-        parseInt(req.query.pageSize),
+        parseInt(page),
+        parseInt(pageSize),
         total_data
       );
-      const dataResponse = await getHistoryDataSensorByTemperature(
-        req.query.value,
-        req.query.typeSort,
-        req.query.sort,
+      const dataResponse = await getAllHistoryDataSensor(typeSort, sort, meta);
+      data.status = dataResponse.status;
+      data.data = dataResponse.data;
+      data.meta = meta;
+    } else {
+      const total_data = (await getCountHistoryDataSensorByWind(value)).data;
+      //console.log("total_data is ", total_data);
+      const meta = pagination(
+        objectPagination,
+        parseInt(page),
+        parseInt(pageSize),
+        total_data
+      );
+      const dataResponse = await getHistoryDataSensorByWind(
+        value,
+        typeSort,
+        sort,
         meta
       );
       data.status = dataResponse.status;
@@ -370,15 +397,26 @@ const getHistoryDataSensor = async (req, res) => {
   console.log(responseData);
 };
 const getHistoryDataSensorForChart = async (req, res) => {
-  const key = req.query.key;
-  const data = await getDataSensorForChart(key);
+  const data = await getDataSensorForChart();
   const { status, ...responseData } = data;
   res.status(data.status).json(responseData.data);
-  console.log(responseData.data);
+  // console.log(responseData.data);
+};
+const getWind = async (req, res) => {
+  const data = await getWindService();
+  const { status, ...responseData } = data;
+  res.status(data.status).json(responseData);
+};
+const getFan = async (req, res) => {
+  const data = await getFanService();
+  const { status, ...responseData } = data;
+  res.status(data.status).json(responseData);
 };
 module.exports = {
   controlDevice,
   getHistoryDevice,
   getHistoryDataSensor,
   getHistoryDataSensorForChart,
+  getWind,
+  getFan,
 };

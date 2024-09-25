@@ -1,0 +1,12 @@
+*     HistoryDevice:
+   *       type: object
+   *       properties:
+   *         data:
+   *           type: List<HistoryDevice>
+   *           description: The list of device history. Each item contains the device 
+   *         meta:
+   *           type: PaginationObject
+   *           description: The Pagination Object include  current_page: Int,page_size : Int,total_page: Int,total_data: Int,skip: Int
+   *         deviceStatus:
+   *           type: boolean
+   *           description: The status of the device at the time of the event

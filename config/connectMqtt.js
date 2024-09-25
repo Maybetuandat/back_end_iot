@@ -9,6 +9,7 @@ const topic = "home/sensor/data";
 const statusLedResponse = "home/led/response";
 const statusFanResponse = "home/fan/response";
 const statusAirConditionerResponse = "home/air_conditioner/response";
+const statusDustReponse = "home/dust/response";
 const homestatus = "home/sensor/data";
 const { saveDataSensor } = require("../service/data_sensor.service");
 const { saveHistoryDevice } = require("../service/history_device.service");
@@ -47,6 +48,13 @@ const connectMqtt = (io) => {
         console.log("Subscribed to topic:", statusAirConditionerResponse);
       }
     });
+    client.subscribe(statusDustReponse, (err) => {
+      if (err) {
+        console.error("Failed to subscribe to topic:", err);
+      } else {
+        console.log("Subscribed to topic:", statusDustReponse);
+      }
+    });
 
     //tạo các subcribe cho các topic
   });
@@ -65,8 +73,12 @@ const connectMqtt = (io) => {
       sensorData.temperature = temp;
       let humidity = sensorData.humidity;
       let light_level = sensorData.light_level;
-      console.log(`Data nhận được từ sensor: ${message}`);
-      io.emit("data_sensor", `${temp} ${humidity} ${light_level}`);
+      let winds = sensorData.winds;
+      console.log(
+        `Data nhận được từ sensor: ${temp} ${humidity} ${light_level} ${winds}`
+      );
+      // io.emit("data_sensor", `${temp} ${humidity} ${light_level} ${dust}`);
+      io.emit("data_sensor", `${temp} ${humidity} ${light_level} ${winds}`);
       const statussaveDataSensor = await saveDataSensor(sensorData);
       console.log(statussaveDataSensor);
     }
@@ -93,6 +105,13 @@ const connectMqtt = (io) => {
       );
       console.log(statussaveHistoryDevice);
       io.emit("air_conditioner_status", data);
+    }
+    if (topic == statusDustReponse) {
+      const data = message.toString();
+      console.log(`dust status: ${data}`);
+      const statussaveHistoryDevice = await saveHistoryDevice("Dust", data);
+      console.log(statussaveHistoryDevice);
+      io.emit("dust_status", data);
     }
   });
 };

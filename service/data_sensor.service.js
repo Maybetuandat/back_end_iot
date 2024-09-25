@@ -12,6 +12,7 @@ const saveDataSensor = async (data) => {
       Humidity: data.humidity,
       Light: data.light_level,
       Time: now,
+      Wind: data.winds,
     });
     response.status = 200;
   } catch (err) {
@@ -61,7 +62,14 @@ const getAllHistoryDataSensor = async (typeSort, sort, meta) => {
     } else {
       order = [["Light", "DESC"]];
     }
+  } else if (typeSort == "Wind") {
+    if (sort == "Increase") {
+      order = [["Wind", "ASC"]];
+    } else {
+      order = [["Wind", "DESC"]];
+    }
   }
+
   try {
     const objectSearch = await db.DataSensor.findAll({
       raw: true,
@@ -79,6 +87,7 @@ const getAllHistoryDataSensor = async (typeSort, sort, meta) => {
     console.log("loi khi search du lieu", error);
     data.status = 500;
   }
+  console.log(data);
   return data;
 };
 const getCountHistoryDataSensorByTime = async (value) => {
@@ -425,17 +434,17 @@ const getHistoryDataSensorByTemperature = async (
   }
   return data;
 };
-const getDataSensorForChart = async (key) => {
-  const attribute = [key];
+const getDataSensorForChart = async () => {
+  const attribute = ["Temperature", "Humidity", "Light", "Time"];
   const data = { data: null, status: null };
   try {
     const rows = await db.DataSensor.findAll({
       attributes: attribute,
-      limit: 5,
+      limit: 10,
       order: [["Time", "DESC"]],
     });
     data.status = 200;
-    data.data = rows.map((row) => ({ data: row[key] }));
+    data.data = rows;
   } catch (error) {
     console.log(
       "Lỗi khi truy vấn 5 hàng cuối cùng với thuộc tính Temperature",
@@ -444,6 +453,103 @@ const getDataSensorForChart = async (key) => {
     data.status = 500;
   }
   console.log(data);
+  return data;
+};
+const getWindService = async () => {
+  const data = { status: null, data: null };
+  try {
+    const count = await db.DataSensor.count({
+      where: {
+        Wind: {
+          [Op.lt]: 40, // Điều kiện Wind < 40
+        },
+      },
+    });
+
+    data.status = 200;
+    data.data = count;
+  } catch (error) {
+    data.status = 500;
+    console.log(error);
+  }
+  return data;
+};
+const getCountHistoryDataSensorByWind = async (value) => {
+  const data = { data: null, status: null };
+  try {
+    const count = await db.DataSensor.count({
+      where: {
+        Wind: {
+          [Op.eq]: parseInt(value),
+        },
+      },
+    });
+    data.status = 200;
+    data.data = count;
+  } catch (error) {
+    console.log("loi o tim kiem khong can gia tri + service", error);
+    data.status = 500;
+  }
+  return data;
+};
+const getHistoryDataSensorByWind = async (value, typeSort, sort, meta) => {
+  const data = { data: null, status: null };
+  try {
+    var objectSearchByTemperature = {};
+    order = [];
+    if (typeSort == "Time") {
+      if (sort == "Increase") {
+        order = [["Time", "ASC"]];
+      } else {
+        order = [["Time", "DESC"]];
+      }
+    } else if (typeSort == "Temperature") {
+      if (sort == "Increase") {
+        order = [["Temperature", "ASC"]];
+      } else {
+        order = [["Temperature", "DESC"]];
+      }
+    } else if (typeSort == "Humidity") {
+      if (sort == "Increase") {
+        order = [["Humidity", "ASC"]];
+      } else {
+        order = [["Humidity", "DESC"]];
+      }
+    } else if (typeSort == "Light") {
+      if (sort == "Increase") {
+        order = [["Light", "ASC"]];
+      } else {
+        order = [["Light", "DESC"]];
+      }
+    } else if (typeSort == "Wind") {
+      if (sort == "Increase") {
+        order = [["Wind", "ASC"]];
+      } else {
+        order = [["Wind", "DESC"]];
+      }
+    }
+    objectSearchByTemperature = await db.DataSensor.findAll({
+      where: {
+        Wind: {
+          [Op.eq]: parseInt(value),
+        },
+      },
+      order: order,
+      limit: meta.page_size,
+      offset: meta.skip,
+      raw: true,
+    });
+
+    if (objectSearchByTemperature.length > 0) {
+      data.status = 200;
+      data.data = objectSearchByTemperature;
+    } else {
+      data.status = 404;
+    }
+  } catch (error) {
+    console.log("loi khi search du lieu", error);
+    data.status = 500;
+  }
   return data;
 };
 module.exports = {
@@ -459,4 +565,7 @@ module.exports = {
   getCountHistoryDataSensorByTemperature,
   getHistoryDataSensorByTemperature,
   getDataSensorForChart,
+  getWindService,
+  getCountHistoryDataSensorByWind,
+  getHistoryDataSensorByWind,
 };

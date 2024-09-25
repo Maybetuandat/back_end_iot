@@ -22,6 +22,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.FLOAT,
         allowNull: false,
       },
+      Wind: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
       Time: DataTypes.DATE,
     },
     {
