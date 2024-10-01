@@ -24,7 +24,7 @@ io.on("connection", (socket) => {
 apiRouter(app);
 app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
-server.listen(process.env.SERVER_PORT, process.env.SERVER_HOST, () => {
+server.listen(process.env.SERVER_PORT || 9999, process.env.SERVER_HOST, () => {
   console.log(
     `Socket server is running on port 9999 ${process.env.SERVER_HOST}`
   );
