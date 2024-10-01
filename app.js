@@ -35,4 +35,19 @@ server.listen( 9999, () => {
 apiRouter(app);
 app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
+function getRandomValue(min, max) {
+  return (Math.random() * (max - min) + min).toFixed(2); // Lấy giá trị thập phân 2 chữ số
+}
+
+setInterval(() => {
+  // Tạo ra các giá trị ngẫu nhiên cho temperature, humidity, và light level
+  const temp = getRandomValue(20, 30); // Ví dụ khoảng 20 - 30 độ C
+  const humidity = getRandomValue(40, 60); // Ví dụ khoảng 40% - 60%
+  const light_level = getRandomValue(100, 1000); // Ví dụ khoảng 100 - 1000 lumen
+  
+  // Phát (emit) dữ liệu sensor qua socket với event "data_sensor"
+  io.emit("data_sensor", `${temp} ${humidity} ${light_level}`);
+
+  console.log(`Sent data: Temperature: ${temp}, Humidity: ${humidity}, Light Level: ${light_level}`);
+}, 5000); // Gửi dữ liệu mỗi 5 giây
 
