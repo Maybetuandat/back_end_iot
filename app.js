@@ -20,7 +20,7 @@ io.on("connection", (socket) => {
     console.log("A user disconnected");
   });
 });
-connectMqtt(io);
+//connectMqtt(io);
 apiRouter(app);
 app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
@@ -29,3 +29,5 @@ server.listen(process.env.SERVER_PORT, process.env.SERVER_HOST, () => {
     `Socket server is running on port 9999 ${process.env.SERVER_HOST}`
   );
 });
+
+
