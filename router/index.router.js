@@ -253,4 +253,7 @@ module.exports = (app) => {
   );
   app.get("/api/wind", getWind);
   app.get("/api/turn", getFan);
+  app.get('/', (req, res) => {
+    res.send('Hello World!')
+  })
 };
