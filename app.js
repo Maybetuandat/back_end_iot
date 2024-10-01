@@ -21,9 +21,6 @@ io.on("connection", (socket) => {
   });
 });
 //connectMqtt(io);
-apiRouter(app);
-app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
-
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
@@ -34,5 +31,8 @@ server.listen( 9999, () => {
   );
 });
 
+
+apiRouter(app);
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
 

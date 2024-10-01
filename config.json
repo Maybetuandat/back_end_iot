@@ -1,17 +1,17 @@
 {
   "development": {
-    "username": "maybetuandat",
-    "password": "123456789aA@",
-    "database": "iot_db",
-    "host": "localhost",
+    "username": "uwurwux7r36udjpc",
+    "password": "WyrYv3MWk5z0AMPmPiAg",
+    "database": "bjwzyuzbzyvon2acmjf8",
+    "host": "bjwzyuzbzyvon2acmjf8-mysql.services.clever-cloud.com",
     "port": "3306",
     "dialect": "mysql"
   },
   "test": {
-    "username": "aitcvnkd_hoanghiep",
-    "password": "@Hiep2003",
+    "username": "uwurwux7r36udjpc",
+    "password": "WyrYv3MWk5z0AMPmPiAg",
     "database": "aitcvnkd_hoanghiep2",
-    "host": "localhost",
+    "host": "bjwzyuzbzyvon2acmjf8",
     "port": "3306",
     "dialect": "mysql"
   },
@@ -19,7 +19,7 @@
     "username": "aitcvnkd_hoanghiep",
     "password": "@Hiep2003",
     "database": "aitcvnkd_hoanghiep2",
-    "host": "localhost",
+    "host": "bjwzyuzbzyvon2acmjf8-mysql.services.clever-cloud.com",
     "port": "3306",
     "dialect": "mysql"
   }
