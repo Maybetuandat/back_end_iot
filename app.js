@@ -20,21 +20,6 @@ io.on("connection", (socket) => {
     console.log("A user disconnected");
   });
 });
-//connectMqtt(io);
-
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
-});
-server.listen( 9999, () => {
-  console.log(
-    `Socket server is running on port 9999 ${process.env.SERVER_HOST}`
-  );
-});
-
-
-apiRouter(app);
-app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
-
 function getRandomValue(min, max) {
   return (Math.random() * (max - min) + min).toFixed(2); // Lấy giá trị thập phân 2 chữ số
 }
@@ -50,4 +35,20 @@ setInterval(() => {
 
   console.log(`Sent data: Temperature: ${temp}, Humidity: ${humidity}, Light Level: ${light_level}`);
 }, 5000); // Gửi dữ liệu mỗi 5 giây
+
+
+//connectMqtt(io);
+
+// app.listen(3000, () => {
+//   console.log("Server is running on port 3000");
+// });
+server.listen( 9999, () => {
+  console.log(
+    `Socket server is running on port 9999 ${process.env.SERVER_HOST}`
+  );
+});
+
+
+apiRouter(app);
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
