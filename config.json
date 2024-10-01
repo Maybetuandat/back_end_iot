@@ -10,15 +10,15 @@
   "test": {
     "username": "uwurwux7r36udjpc",
     "password": "WyrYv3MWk5z0AMPmPiAg",
-    "database": "aitcvnkd_hoanghiep2",
-    "host": "bjwzyuzbzyvon2acmjf8",
+    "database": "bjwzyuzbzyvon2acmjf8",
+    "host": "bjwzyuzbzyvon2acmjf8-mysql.services.clever-cloud.com",
     "port": "3306",
     "dialect": "mysql"
   },
   "production": {
-    "username": "aitcvnkd_hoanghiep",
-    "password": "@Hiep2003",
-    "database": "aitcvnkd_hoanghiep2",
+    "username": "uwurwux7r36udjpc",
+    "password": "WyrYv3MWk5z0AMPmPiAg",
+    "database": "bjwzyuzbzyvon2acmjf8",
     "host": "bjwzyuzbzyvon2acmjf8-mysql.services.clever-cloud.com",
     "port": "3306",
     "dialect": "mysql"
