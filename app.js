@@ -24,10 +24,15 @@ io.on("connection", (socket) => {
 apiRouter(app);
 app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
+
+app.listen(3000, () => {
+  console.log("Server is running on port 3000");
+});
 server.listen( 9999, process.env.SERVER_HOST, () => {
   console.log(
     `Socket server is running on port 9999 ${process.env.SERVER_HOST}`
   );
 });
+
 
 
